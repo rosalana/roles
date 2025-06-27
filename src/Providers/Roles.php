@@ -23,6 +23,7 @@ class Roles implements Package
                     Config::new('roles')
                         ->add('enum', 'Rosalana\\Roles\\Enums\\RoleEnum')
                         ->add('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias
+                        ->add('pivot', 'users') // Název relace na pivot table, pro každý Roleable model e.g. $workspace->users() -> 'workspace_users' table
                         ->comment('Configurate the roles and permissions for the application.', 'Rosalana Roles Configuration')
                         ->save();
                 }

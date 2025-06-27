@@ -25,6 +25,12 @@ class Role extends Model
         return $this->morphTo('roleable', 'roleable_type', 'roleable_id');
     }
 
+    // public static function for()
+
+
+
+    // --- 
+
     public function hasPermission(string $permission): bool
     {
         return in_array($permission, $this->permissions ?? [], true);
