@@ -2,7 +2,9 @@
 
 namespace Rosalana\Roles\Providers;
 
+use Illuminate\Support\Facades\Artisan;
 use Rosalana\Core\Contracts\Package;
+use Rosalana\Core\Support\Config;
 
 class Roles implements Package
 {
@@ -17,13 +19,20 @@ class Roles implements Package
             'config' => [
                 'label' => 'Publish configuration settings to rosalana.php',
                 'run' => function () {
-                    //
+
+                    Config::new('roles')
+                        ->add('enum', 'Rosalana\\Roles\\Enums\\RoleEnum')
+                        ->comment('Configurate the roles and permissions for the application.', 'Rosalana Roles Configuration')
+                        ->save();
                 }
             ],
             'migrations' => [
                 'label' => 'Publish database migrations',
                 'run' => function () {
-                    //
+                    Artisan::call('vendor:publish', [
+                        '--tag' => 'rosalana-roles-migrations',
+                        '--force' => true
+                    ]);
                 }
             ]
         ];
