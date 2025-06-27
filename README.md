@@ -42,6 +42,9 @@ This file will grow over time as you add more Rosalana packages to your applicat
 
 ## Features
 
+Model:
+- měl by implementovat $permissions a $permissionsAlias -> kvůli migraci, když nějaký permission bude přejmenován aby se dalo migrovat.
+- mebo udělat migraci ručně pomocí artisan příkazu převést konkrétní permission na jiný název nebo na jiné názvy. Nebo se to dá dělat při bootu modelu
 
 ## May Show in the Future
 
