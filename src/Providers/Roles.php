@@ -13,6 +13,19 @@ class Roles implements Package
 
     public function publish(): array
     {
-        return [];
+        return [
+            'config' => [
+                'label' => 'Publish configuration settings to rosalana.php',
+                'run' => function () {
+                    //
+                }
+            ],
+            'migrations' => [
+                'label' => 'Publish database migrations',
+                'run' => function () {
+                    //
+                }
+            ]
+        ];
     }
 }
