@@ -11,7 +11,9 @@ class RosalanaRolesServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton('rosalana.roles', function ($app) {
+            return new \Rosalana\Roles\Services\RolesManager();
+        });
     }
 
     /**

@@ -2,69 +2,124 @@
 
 namespace Rosalana\Roles\Services;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Rosalana\Roles\Models\Role;
 use Rosalana\Roles\Traits\HasRoles;
 use Rosalana\Roles\Traits\Roleable;
 
 class RolesManager
 {
     /**
-     * The model that this manager is operating on.
-     */
-    protected $model;
-
-    /**
      * This is the model that has the roles assigned to it.
      */
-    protected $assignee;
+    protected Model&HasRoles $assignee;
 
-    public function on(Model&Roleable $model): self
-    {
-        $this->model = $model;
-        return $this;
-    }
+    /**
+     * The model that this manager is operating on.
+     */
+    protected Model&Roleable $roleable;
 
+    /**
+     * Set the assignee for the roles.
+     */
     public function for(Model&HasRoles $assignee): self
     {
         $this->assignee = $assignee;
         return $this;
     }
 
-    public function get(): Collection
+    /**
+     * Set the model that this manager will operate on.
+     */
+    public function on(Model&Roleable $roleable): self
     {
-        $this->validateContext();
+        $this->roleable = $roleable;
+        return $this;
+    }
+
+    public function assign(string|Role $role)
+    {
+        $role = $this->resolveRole($role);
+        $this->ensureContext();
+
+        $role ? $this->assignee->roles()->syncWithoutDetaching($role) : throw new \RuntimeException("Role not found: {$role}");
+    }
+
+    public function detach(string|Role $role)
+    {
+        $role = $this->resolveRole($role);
+        $this->ensureContext();
+
+        $role ? $this->assignee->roles()->detach($role) : throw new \RuntimeException("Role not found: {$role}");
+    }
+
+    public function has(string|Role $role): bool
+    {
+        $role = $this->resolveRole($role);
+        $this->ensureContext();
+
+        return $role ? $this->assignee->roles()->where('id', $role->id)->exists() : false;
+    }
+
+    public function get(): ?Role
+    {
+        $this->ensureContext();
 
         return $this->assignee->roles()
-            ->where('roleable_type', get_class($this->model))
-            ->where('roleable_id', $this->model->getKey())
-            ->get();
+            ->where('roleable_type', get_class($this->roleable))
+            ->where('roleable_id', $this->roleable->getKey())
+            ->first();
     }
 
-    public function check(string $roleOrPermissionName): bool
+    public function can(string $permission): bool
     {
-        $this->validateContext();
+        $this->ensureContext();
 
-        // Check if the role or permission exists in the roles of the assignee
-        return $this->assignee->roles()
-            ->where('roleable_type', get_class($this->model))
-            ->where('roleable_id', $this->model->getKey())
-            ->where(function ($query) use ($roleOrPermissionName) {
-                $query->where('name', $roleOrPermissionName)
-                    ->orWhereJsonContains('permissions', $roleOrPermissionName);
-            })
-            ->exists();
+        $role = $this->get();
+        if (!$role) return false;
+
+        $validPermissions = $this->roleable::permissions();
+        $resolvedPermissions = $this->resolveWildcardPermissions($role->permissions);
+
+        return in_array($permission, $resolvedPermissions) && in_array($permission, $validPermissions);
     }
 
-    public function assign(string $role)
+    public function permissions(): Collection
     {
-        $this->validateContext();
+        $this->ensureContext();
+
+        $role = $this->get();
+        if (!$role) return collect();
+
+        return collect($this->resolveWildcardPermissions($role->permissions));
     }
 
-    private function validateContext(): void
+    protected function resolveRole(string|Role $role): ?Role
     {
-        if (!$this->model instanceof Model || !$this->assignee instanceof Model) {
-            throw new \InvalidArgumentException('RolesManager must be called on a model that implements Roleable and HasRoles traits.');
+        return $role instanceof Role ? $role : $this->resolveRoleByName($role);
+    }
+
+    protected function resolveRoleByName(string $name): ?Role
+    {
+        $this->ensureContext();
+
+        return $this->roleable->roles()->where('name', $name)->first();
+    }
+
+    protected function ensureContext(): void
+    {
+        if (!$this->roleable || $this->assignee) {
+            throw new \RuntimeException("Missing context: both 'roleable' and 'assignee' must be defined.");
         }
+    }
+
+    protected function resolveWildcardPermissions(array $permissions): array
+    {
+        if (in_array('*', $permissions)) {
+            return $this->roleable::permissions();
+        }
+
+        return $permissions;
     }
 }
