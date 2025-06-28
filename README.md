@@ -46,6 +46,19 @@ Model:
 - měl by implementovat $permissions a $permissionsAlias -> kvůli migraci, když nějaký permission bude přejmenován aby se dalo migrovat.
 - mebo udělat migraci ručně pomocí artisan příkazu převést konkrétní permission na jiný název nebo na jiné názvy. Nebo se to dá dělat při bootu modelu
 
+
+
+
+### Poskytuje:
+- role a permissions správu
+- správu existence usera v nějakém modelu např. user -> workspace, team (jen napad zatim)
+
+```php
+    $user->leave($workspace); // ostraní i roli
+```
+
+
+
 ## May Show in the Future
 
 - 

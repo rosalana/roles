@@ -29,7 +29,7 @@ class Role extends Model
         return $this->morphTo('roleable', 'roleable_type', 'roleable_id');
     }
 
-    public function assigned(): HasMany
+    public function assignees(): HasMany
     {
         return $this->hasMany(AssignedRole::class, 'role_id');
     }
