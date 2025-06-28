@@ -3,6 +3,7 @@
 namespace Rosalana\Roles\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Role extends Model
@@ -20,19 +21,16 @@ class Role extends Model
         'permissions' => 'array',
     ];
 
+    /**
+     * Get the model on which user has this role.
+     */
     public function roleable(): MorphTo
     {
         return $this->morphTo('roleable', 'roleable_type', 'roleable_id');
     }
 
-    // public static function for()
-
-
-
-    // --- 
-
-    public function hasPermission(string $permission): bool
+    public function assigned(): HasMany
     {
-        return in_array($permission, $this->permissions ?? [], true);
+        return $this->hasMany(AssignedRole::class, 'role_id');
     }
 }
