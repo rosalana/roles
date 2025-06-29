@@ -12,29 +12,40 @@ trait Roleable
 {
     public static function bootRoleable()
     {
-        parent::boot();
-
         \Rosalana\Roles\Support\Registry::register(static::class);
 
-
         // tyto věci uděláme později.. až nakonec
-        // static::retrieved(function ($model) {
-        //     // validate permissions (jestli nemá nějaké které neexistuje) and log or migrate if necessary
-        //     // registrovat permissions do nějakého globálního stavu at víme, které permissions jsou právě používány
-        // });
+        static::retrieved(function ($model) {
+            // validace 
+        });
 
-        // static::creating(function ($model) {
-        //     // assign default roles if any
-        // });
+        static::creating(function ($model) {
+            // assign default roles if any
+        });
 
-        // static::created(function ($model) {
-        //     //
-        // });
+        static::created(function ($model) {
+            //
+        });
     }
 
-    /**
-     * Returns the pivot table for this roleable model.
-     */
+    // Relationships
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            'App\Models\User', // Adjust the namespace as needed
+            static::getUsersPivotTable(),
+        )->withPivot('role_id');
+    }
+
+
+    public function roles(): MorphMany
+    {
+        return $this->morphMany(Role::class, 'roleable');
+    }
+
+    // Attributes
+
     public static function getUsersPivotTable(): string
     {
         return strtolower(class_basename(static::class)) . '_users';
@@ -60,22 +71,6 @@ trait Roleable
     public static function defaultRole(): ?string
     {
         return isset(static::defaultRoles()['default']) ? 'default' : null;
-    }
-
-    // Relationships
-
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            'App\Models\User', // Adjust the namespace as needed
-            static::getUsersPivotTable(),
-        )->withPivot('role_id');
-    }
-
-
-    public function roles(): MorphMany
-    {
-        return $this->morphMany(Role::class, 'roleable');
     }
 
     // Methods
