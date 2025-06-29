@@ -16,9 +16,27 @@ trait HasRoles
         });
     }
 
+    // Attributes
+
+
+    // Relationships
+
     public function roles(): MorphToMany
     {
         return $this->morphToMany(Role::class, 'assignee', 'assigned_roles');
+    }
+
+    // Methods
+
+
+    public function join(Model&Roleable $model, string|Role|null $role = null): void
+    {
+        Roles::on($model)->for($this)->assign($role);
+    }
+
+    public function leave(Model&Roleable $model): void
+    {
+        Roles::on($model)->for($this)->detach();
     }
 
     public function role(Model&Roleable $model)

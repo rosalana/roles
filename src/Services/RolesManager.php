@@ -95,7 +95,7 @@ class RolesManager
         return collect($this->resolveWildcardPermissions($role->permissions));
     }
 
-    protected function resolveRole(string|Role $role): ?Role
+    public function resolveRole(string|Role $role): ?Role
     {
         return $role instanceof Role ? $role : $this->resolveRoleByName($role);
     }
@@ -109,7 +109,7 @@ class RolesManager
 
     protected function ensureContext(): void
     {
-        if (!$this->roleable || $this->assignee) {
+        if (!$this->roleable || !$this->assignee) {
             throw new \RuntimeException("Missing context: both 'roleable' and 'assignee' must be defined.");
         }
     }
