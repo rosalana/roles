@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Rosalana\Roles\Facades\Roles;
 use Rosalana\Roles\Models\Role;
+use Rosalana\Roles\Support\Migrator;
 
 trait Roleable
 {
@@ -14,17 +15,12 @@ trait Roleable
     {
         \Rosalana\Roles\Support\Registry::register(static::class);
 
-        // tyto věci uděláme později.. až nakonec
-        static::retrieved(function ($model) {
-            // validace 
-        });
-
-        static::creating(function ($model) {
-            // assign default roles if any
-        });
-
         static::created(function ($model) {
-            //
+            Migrator::seedWithDefault($model);
+        });
+
+        static::deleted(function ($model) {
+            Migrator::removeAllRoles($model);
         });
     }
 
@@ -37,7 +33,6 @@ trait Roleable
             static::getUsersPivotTable(),
         )->withPivot('role_id');
     }
-
 
     public function roles(): MorphMany
     {

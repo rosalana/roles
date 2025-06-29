@@ -11,9 +11,7 @@ trait HasRoles
 {
     public static function bootHasRoles()
     {
-        static::retrieved(function ($model) {
-            //
-        });
+        //
     }
 
     public function join(Model&Roleable $model, string|Role|null $role = null): void

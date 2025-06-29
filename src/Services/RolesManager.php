@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Rosalana\Roles\Models\Role;
+use Rosalana\Roles\Support\Migrator;
 use Rosalana\Roles\Support\Registry;
 use Rosalana\Roles\Traits\HasRoles;
 use Rosalana\Roles\Traits\Roleable;
@@ -53,10 +54,10 @@ class RolesManager
     /**
      * Assign a role to the assignee on the roleable model.
      */
-    public function assign(string|Role $role): void
+    public function assign(string|Role|null $role = null): void // pozor může být null!!!
     {
         $original = $role;
-        $role = $this->resolveRole($role);
+        $role = $this->resolveRole($role ?? Registry::get($this->roleable::class)->default_role);
 
         if (!$role) { // make custom exception later
             $name = is_string($original) ? $original : 'unknown';
@@ -117,7 +118,11 @@ class RolesManager
 
         if (!$roleId) return null;
 
-        return $this->roleable->roles()->find($roleId);
+        $role = $this->roleable->roles()->find($roleId);
+
+        if ($role) Migrator::validatePermissions($this->roleable, collect($role->permissions));
+
+        return $role ?: null;
     }
 
     /**
@@ -175,6 +180,8 @@ class RolesManager
     protected function resolvePermissions(Role $role): array
     {
         $permissions = $role->permissions;
+
+        Migrator::validatePermissions($this->roleable, collect($permissions));
 
         if (empty($permissions)) return [];
 

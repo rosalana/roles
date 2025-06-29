@@ -14,7 +14,8 @@ class Registry
 
         static::$models[$class] = collect([
             'pivot_table' => $class::getUsersPivotTable() ?? throw new \RuntimeException("Pivot table not defined for class {$class}."),
-            'default_roles' => $class::defaultRoles(),
+            'default_roles' => $class::defaultRoles() ?? throw new \RuntimeException("Default roles not defined for class {$class}."),
+            'default_role' => $class::defaultRole() ?? array_key_first($class::defaultRoles()),
             'permissions' => $class::permissions(),
             'alias' => $class::permissionsAlias(),
         ]);
