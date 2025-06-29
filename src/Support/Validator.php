@@ -19,10 +19,12 @@ class Validator
         }
     }
 
-    public static function validatePermissions(Model&Roleable $model, Collection $permissions): void
+    public static function validatePermissions(string $model, Collection $permissions): void
     {
-        $registeredPermissions = Config::get($model::class)->permissions;
-        $alias = Config::get($model::class)->alias;
+        Validator::validateClass($model);
+
+        $registeredPermissions = Config::get($model)->permissions;
+        $alias = Config::get($model)->alias;
 
         foreach ($permissions as $p) {
             if (!in_array($p, $registeredPermissions)) {

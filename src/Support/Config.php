@@ -38,6 +38,4 @@ class Config
         static::register($class);
         return static::$models[$class] ?? null;
     }
-
-    // Permissions potřebují být nějak processnuté - protože mají aliasy + windcards
 }

@@ -24,7 +24,7 @@ trait HasRoles
         Roles::on($model)->for($this)->detach();
     }
 
-    public function role(Model&Roleable $model): ?Role
+    public function roleIn(Model&Roleable $model): ?Role
     {
         return Roles::on($model)->for($this)->get();
     }

@@ -9,6 +9,10 @@ This package is a part of the Rosalana eco-system. It provides a way to manage u
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Features](#features)
+    - [Roleable Models](#roleable-models)
+    - [HasRoles Models](#hasroles-models)
+    - [Role Model](#role-model)
+    - [Roles Manager](#roles-manager)
 - [May Show in the Future](#may-show-in-the-future)
 - [License](#license)
 
@@ -38,30 +42,199 @@ This file will grow over time as you add more Rosalana packages to your applicat
 
 `rosalana/roles` package provides configuration options for:
 
-- 
+-
 
 ## Features
 
-Model:
-- měl by implementovat $permissions a $permissionsAlias -> kvůli migraci, když nějaký permission bude přejmenován aby se dalo migrovat.
-- mebo udělat migraci ručně pomocí artisan příkazu převést konkrétní permission na jiný název nebo na jiné názvy. Nebo se to dá dělat při bootu modelu
+### Roleable Models
 
+The `rosalana/roles` package allows you to assign and manage roles for users within the context of specific Eloquent models — such as projects, teams, or workspaces.
 
+Unlike traditional RBAC systems where roles are global, this package is designed for **context-aware role management**.
+Each user can hold a different role depending on the model they are interacting with.
 
+#### Defining Roleable Models
 
-### Poskytuje:
-- role a permissions správu
-- správu existence usera v nějakém modelu např. user -> workspace, team (jen napad zatim)
+To start using roles, you simply add the `Roleable` trait to any model you want to make roleable:
 
 ```php
-    $user->leave($workspace); // ostraní i roli
+use Rosalana\Roles\Traits\Roleable;
+
+class Workspace extends Model
+{
+    use Roleable;
+}
 ```
 
+The model will automatically gain methods to manage roles, permissions and users associated with it.
 
+```php
+$workspace->users(); // associated users
+$workspace->roles(); // associated roles
+$workspace->roleOf($user); // get the role of a user in this workspace
+```
+
+You can also manage roles and users directly:
+
+```php
+$workspace->join($user, 'admin');
+$workspace->leave($user);
+$workspace->newRole('editor', ['edit', 'view']);
+$workspace->hasRole('editor');
+```
+
+#### Configuring Roleable Models
+
+Each roleable model defines its **own role context**, making the roles clear, isolated, and easy to manage.
+
+You can define the roleable models behavior with static methods in the model itself:
+
+```php
+use Rosalana\Roles\Traits\Roleable;
+
+class Workspace extends Model
+{
+    use Roleable;
+
+    public static function getUsersPivotTable(): string
+    {
+        return 'workspace_users'; // default is '{class_name}_users'
+    }
+
+    public static function permissions(): array
+    {
+        return ['view', 'edit', 'delete']; // default is []
+    }
+
+    /**
+     * Define with roles should be created by new model instance.
+     */
+    public static function defaultRoles(): array
+    {
+        return [
+            'default' => ['*'], // this is default
+        ]
+    }
+
+    public static function defaultRole(): string
+    {
+        return 'default'; // default role name for new users
+    }
+}
+```
+
+### HasRoles Models
+
+Models that should **receive roles** (typically `User`) must implement the `HasRoles` trait.
+
+This trait gives your model the ability to **join or leave roleable models, query assigned roles**, and check for **permissions** in context.
+
+#### Defining HasRoles Models
+
+To make a model able to hold roles, simply add the `HasRoles` trait:
+
+```php
+use Rosalana\Roles\Traits\HasRoles;
+
+class User extends Model
+{
+    use HasRoles;
+}
+```
+
+This enables expressive methods like:
+
+```php
+$user->join($workspace, 'admin'); // Assign user to a workspace
+$user->leave($workspace); // Remove user from the workspace
+$user->roleIn($workspace); // Get the Role model instance
+$user->hasRole('admin', $workspace); // Check role in context
+```
+
+You can also perform permission checks:
+
+```php
+$user->hasPermission('edit', $workspace); // Check if user can edit in this workspace
+$user->hasAnyPermission(['view', 'edit'], $workspace); // Check if user has any of the permissions
+```
+
+The trait uses the internal `RolesManager` to handle role assignment and validation. All role actions are **strictly contextual** — they always require a target model.
+
+### Role Model
+
+The `Role` model represents a single role **within a specific roleable model**.
+
+It contains:
+
+- `name` – the role's unique name (e.g. `"admin"`)
+- `permissions` – an array of allowed permissions
+
+- `roleable_type` and `roleable_id` – the model this role belongs to
+
+You usually don't create roles manually via `Role::create()`.
+Instead, use the `newRole()` method from the roleable model:
+
+```php
+$workspace->newRole('editor', ['view', 'edit']);
+```
+
+You can also retrieve and manipulate roles directly:
+
+```php
+$role = $workspace->roles()->where('name', 'editor')->first();
+$role->addPermission('publish');
+$role->removePermission('delete');
+$role->setPermissions(['view', 'edit']); // replaces all
+```
+
+The `Role` model performs validation:
+It ensures all permissions assigned to the role exist in the roleable model's defined permissions.
+If not, it throws an exception — preventing invalid permission states.
+
+#### Permission Helpers
+
+The `Role` model includes several permission helpers:
+
+```php
+$role->hasPermission('edit');                  // true / false
+$role->hasPermissions(['view', 'edit']); // true / false
+$role->hasAnyPermission(['view', 'delete']);   // true / false
+$role->hasAllPermissions(['view', 'edit']); // true / false
+```
+
+These methods resolve wildcards (`*`) and aliases automatically using the configuration on the roleable model.
+
+### Roles Manager
+
+At the heart of the package is a powerful `RolesManager` class.
+It provides the full API for assigning, retrieving, and validating roles between users and models.
+
+The manager requires two things:
+
+- The roleable model (e.g. `Project`)
+- The user you want to check or assign
+
+You can fluently define the context and run any role-related action:
+
+```php
+use Rosalana\Roles\Facades\Roles;
+
+$manager = Roles::on($project)->for($user); 
+// or Roles::context($project, $user);
+
+$manager->assign('admin'); // assign 'admin' role to user in project
+$manager->detach(); // leave the project
+$manager->get(); // get the role instance
+$manager->is('editor'); // true / false
+$manager->can('edit'); // true / false
+```
+The `assign()` method automatically replaces the current role if the user is already assigned.
+You don’t need to check if the user is a member — it just works.
 
 ## May Show in the Future
 
-- 
+- **Permission in Gate**: Added permissions to Laravel's Gate system for more granular access control.
+- **Auto-migration**: Automatically migrate database if deprecated permissions are detected.
 
 Stay tuned — we're actively shaping the foundation of the Rosalana ecosystem.
 

@@ -79,4 +79,42 @@ trait Roleable
     {
         Roles::on($this)->for($user)->detach();
     }
+
+    public function roleOf(Model&HasRoles $user): ?Role
+    {
+        return Roles::on($this)->for($user)->get();
+    }
+
+    public function newRole(string $name, array $permissions = ['*']): Role
+    {
+        return Role::create([
+            'name' => $name,
+            'roleable_type' => static::class,
+            'roleable_id' => $this->getKey(),
+            'permissions' => $permissions,
+        ]);
+    }
+
+    public function hasRole(string|Role $role): bool
+    {
+        $role = Roles::on($this)->for($this)->resolveRole($role);
+
+        if (!$role) return false;
+
+        return $this->roles()
+            ->where('id', $role->getKey())
+            ->exists();
+    }
+
+    public function removeRole(string|Role $role): void
+    {
+        $role = Roles::on($this)->for($this)->resolveRole($role);
+
+        if (!$role) {
+            throw new \RuntimeException("Role '{$role}' not found or could not be resolved.");
+        }
+
+        $role->users()->detach($this->getKey());
+        $role->delete();
+    }
 }

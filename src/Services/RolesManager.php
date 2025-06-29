@@ -120,7 +120,7 @@ class RolesManager
 
         $role = $this->roleable->roles()->find($roleId);
 
-        if ($role) Validator::validatePermissions($this->roleable, collect($role->permissions));
+        if ($role) Validator::validatePermissions($this->roleable::class, collect($role->permissions));
 
         return $role ?: null;
     }
@@ -181,7 +181,7 @@ class RolesManager
     {
         $permissions = $role->permissions;
 
-        Validator::validatePermissions($this->roleable, collect($permissions));
+        Validator::validatePermissions($this->roleable::class, collect($permissions));
 
         if (empty($permissions)) return [];
 
