@@ -68,7 +68,7 @@ trait Roleable
     {
         return $this->belongsToMany(
             'App\Models\User', // Adjust the namespace as needed
-            $this->getUsersPivotTable(),
+            static::getUsersPivotTable(),
         )->withPivot('role_id');
     }
 
