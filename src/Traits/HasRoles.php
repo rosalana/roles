@@ -3,9 +3,11 @@
 namespace Rosalana\Roles\Traits;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Rosalana\Roles\Facades\Roles;
 use Rosalana\Roles\Models\Role;
+use Rosalana\Roles\Support\Registry;
 
 trait HasRoles
 {
@@ -15,19 +17,8 @@ trait HasRoles
             // Roles::for($model); // nešlo by to nastavit tady automaticky?
         });
     }
-
-    // Attributes
-
-
-    // Relationships
-
-    public function roles(): MorphToMany
-    {
-        return $this->morphToMany(Role::class, 'assignee', 'assigned_roles');
-    }
-
+    
     // Methods
-
 
     public function join(Model&Roleable $model, string|Role|null $role = null): void
     {
