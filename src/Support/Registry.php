@@ -9,7 +9,7 @@ class Registry
     public static function register(string $class): void
     {
         static::$models[$class] = [
-            'pivot_table' => $class::getUsersPivotTable(),
+            'pivot_table' => $class::getUsersPivotTable() ?? throw new \RuntimeException("Pivot table not defined for class {$class}."),
             'default_roles' => $class::defaultRoles(),
             'permissions' => $class::permissions(),
             'alias' => $class::permissionsAlias(),

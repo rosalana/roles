@@ -4,9 +4,8 @@ namespace Rosalana\Roles\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Rosalana\Roles\Support\Context;
+use Rosalana\Roles\Support\Registry;
 
 class Role extends Model
 {
@@ -23,9 +22,6 @@ class Role extends Model
         'permissions' => 'array',
     ];
 
-    /**
-     * Get the model on which user has this role.
-     */
     public function roleable(): MorphTo
     {
         return $this->morphTo('roleable', 'roleable_type', 'roleable_id');
@@ -33,11 +29,11 @@ class Role extends Model
 
     public function users(): BelongsToMany
     {
-        $class = Context::resolveRoleable($this->roleable_type);
-        $table = (new $class)->getUsersPivotTable();
+        $table = Registry::get($this->roleable_type)['pivot_table'];
+        $userModel = config('auth.providers.users.model', \App\Models\User::class);
         
         return $this->belongsToMany(
-            'App\Models\User',
+            $userModel,
             $table,
             'role_id',
             'user_id'
