@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Rosalana\Roles\Models\Role;
-use Rosalana\Roles\Support\Migrator;
-use Rosalana\Roles\Support\Registry;
+use Rosalana\Roles\Support\Config;
+use Rosalana\Roles\Support\Validator;
 use Rosalana\Roles\Traits\HasRoles;
 use Rosalana\Roles\Traits\Roleable;
 
@@ -57,7 +57,7 @@ class RolesManager
     public function assign(string|Role|null $role = null): void // pozor může být null!!!
     {
         $original = $role;
-        $role = $this->resolveRole($role ?? Registry::get($this->roleable::class)->default_role);
+        $role = $this->resolveRole($role ?? Config::get($this->roleable::class)->default_role);
 
         if (!$role) { // make custom exception later
             $name = is_string($original) ? $original : 'unknown';
@@ -107,7 +107,7 @@ class RolesManager
     {
         $this->ensureContext();
 
-        $pivotTable = Registry::get($this->roleable::class)->pivot_table;
+        $pivotTable = Config::get($this->roleable::class)->pivot_table;
         $roleableColumn = strtolower(class_basename($this->roleable)) . '_id';
         $assigneeColumn = strtolower(class_basename($this->assignee)) . '_id';
 
@@ -120,7 +120,7 @@ class RolesManager
 
         $role = $this->roleable->roles()->find($roleId);
 
-        if ($role) Migrator::validatePermissions($this->roleable, collect($role->permissions));
+        if ($role) Validator::validatePermissions($this->roleable, collect($role->permissions));
 
         return $role ?: null;
     }
@@ -181,7 +181,7 @@ class RolesManager
     {
         $permissions = $role->permissions;
 
-        Migrator::validatePermissions($this->roleable, collect($permissions));
+        Validator::validatePermissions($this->roleable, collect($permissions));
 
         if (empty($permissions)) return [];
 
@@ -212,7 +212,7 @@ class RolesManager
      */
     protected function processPermissionsAlias(array $permissions): array
     {
-        $alias = Registry::get($this->roleable::class)->alias;
+        $alias = Config::get($this->roleable::class)->alias;
 
         if (empty($alias)) return $permissions;
 

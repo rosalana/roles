@@ -11,7 +11,7 @@ class Migrator
 {
     public static function seedWithDefault(Model&Roleable $model): void
     {
-        $defaultRoles = Registry::get($model::class)->default_roles;
+        $defaultRoles = Config::get($model::class)->default_roles;
 
         if (empty($defaultRoles)) return;
 
@@ -28,26 +28,6 @@ class Migrator
     public static function removeAllRoles(Model&Roleable $model): void
     {
         $model->roles()->delete();
-    }
-
-    public static function validatePermissions(Model&Roleable $model, Collection $permissions): void
-    {
-        $registeredPermissions = Registry::get($model::class)->permissions;
-        $alias = Registry::get($model::class)->alias;
-
-        foreach ($permissions as $p) {
-            if (!in_array($p, $registeredPermissions)) {
-
-                if (isset($alias[$p]) && in_array($alias[$p], $registeredPermissions)) {
-                    // It's a valid alias, so we can skip it
-                    continue;
-                } else {
-                    throw new \RuntimeException("Permission '{$p}' is not registered for model " . $model::class);
-                }
-
-                // -> pokud to dojde sem musí se udělat migrace - migrace by dělala i když by byl alias ale není to nutné.
-            }
-        }
     }
 
     public static function migrate(): void

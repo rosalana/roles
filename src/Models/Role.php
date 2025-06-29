@@ -5,7 +5,7 @@ namespace Rosalana\Roles\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Rosalana\Roles\Support\Registry;
+use Rosalana\Roles\Support\Config;
 
 class Role extends Model
 {
@@ -29,7 +29,7 @@ class Role extends Model
 
     public function users(): BelongsToMany
     {
-        $table = Registry::get($this->roleable_type)['pivot_table'];
+        $table = Config::get($this->roleable_type)['pivot_table'];
         $userModel = config('auth.providers.users.model', \App\Models\User::class);
         
         return $this->belongsToMany(

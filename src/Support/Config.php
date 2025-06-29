@@ -4,13 +4,13 @@ namespace Rosalana\Roles\Support;
 
 use Illuminate\Support\Collection;
 
-class Registry
+class Config
 {
     protected static array $models = [];
 
     public static function register(string $class): void
     {
-        static::validateClass($class);
+        Validator::validateClass($class);
 
         static::$models[$class] = collect([
             'pivot_table' => $class::getUsersPivotTable() ?? throw new \RuntimeException("Pivot table not defined for class {$class}."),
@@ -31,20 +31,9 @@ class Registry
         return static::$models[$class] ?? static::resolve($class);
     }
 
-    protected static function validateClass(string $class): void
-    {
-        if (!class_exists($class)) {
-            throw new \RuntimeException("Class {$class} not found.");
-        }
-
-        if (!in_array('Rosalana\Roles\Traits\Roleable', class_uses_recursive($class))) {
-            throw new \RuntimeException("Class {$class} does not use Roleable trait.");
-        }
-    }
-
     protected static function resolve(string $class): ?Collection
     {
-        static::validateClass($class);
+        Validator::validateClass($class);
 
         static::register($class);
         return static::$models[$class] ?? null;

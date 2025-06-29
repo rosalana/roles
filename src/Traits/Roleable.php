@@ -13,7 +13,7 @@ trait Roleable
 {
     public static function bootRoleable()
     {
-        \Rosalana\Roles\Support\Registry::register(static::class);
+        \Rosalana\Roles\Support\Config::register(static::class);
 
         static::created(function ($model) {
             Migrator::seedWithDefault($model);
