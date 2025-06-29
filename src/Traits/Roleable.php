@@ -28,7 +28,7 @@ trait Roleable
         });
     }
 
-    // Relationships
+    /* Relationships */
 
     public function users(): BelongsToMany
     {
@@ -44,7 +44,7 @@ trait Roleable
         return $this->morphMany(Role::class, 'roleable');
     }
 
-    // Attributes
+    /* Attributes */
 
     public static function getUsersPivotTable(): string
     {
@@ -73,7 +73,7 @@ trait Roleable
         return isset(static::defaultRoles()['default']) ? 'default' : null;
     }
 
-    // Methods
+    /* Methods */
 
     public function join(Model&HasRoles $user, string|Role|null $role = null): void
     {

@@ -53,13 +53,13 @@ class RolesManager
     /**
      * Assign a role to the assignee on the roleable model.
      */
-    public function assign(string|Role $role)
+    public function assign(string|Role $role): void
     {
+        $original = $role;
         $role = $this->resolveRole($role);
-        $this->ensureContext();
 
         if (!$role) { // make custom exception later
-            $name = is_string($role) ? $role : 'unknown';
+            $name = is_string($original) ? $original : 'unknown';
             throw new \RuntimeException("Role '{$name}' not found or could not be resolved.");
         }
 
@@ -71,7 +71,7 @@ class RolesManager
     /**
      * Detach the assignee from the roleable model.
      */
-    public function detach()
+    public function detach(): void
     {
         $this->ensureContext();
 
