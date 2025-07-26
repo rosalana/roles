@@ -14,14 +14,16 @@ trait HasRoles
         //
     }
 
-    public function join(Model $model, string|Role|null $role = null): void
+    public function join(Model $model, string|Role|null $role = null): Role
     {
         Roles::on($model)->for($this)->assign($role);
+        return $this->roleIn($model);
     }
 
-    public function leave(Model $model): void
+    public function leave(Model $model): Role
     {
         Roles::on($model)->for($this)->detach();
+        return $this->roleIn($model);
     }
 
     public function roleIn(Model $model): ?Role
@@ -34,9 +36,10 @@ trait HasRoles
         return Roles::on($model)->for($this)->permissions();
     }
 
-    public function changeRole(string|Role $role, Model $model): void
+    public function changeRole(string|Role $role, Model $model): Role
     {
         $this->join($model, $role);
+        return $this->roleIn($model);
     }
 
     public function hasRole(string|Role $role, Model $model): bool

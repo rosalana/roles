@@ -135,7 +135,7 @@ class RolesManager
         $role = $this->get();
         if (!$role) return collect();
 
-        return collect($this->resolvePermissions($role->permissions));
+        return collect($this->resolvePermissions($role));
     }
 
     /**
