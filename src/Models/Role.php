@@ -86,9 +86,9 @@ class Role extends Model
         return empty(array_diff($permissions, $this->permissions ?? []));
     }
 
-    public function create(array $attributes = []): self
+    public static function create(array $attributes = []): self
     {
-        Validator::validatePermissions($this->roleable_type, collect($attributes['permissions'] ?? []));
+        Validator::validatePermissions($attributes['roleable_type'], collect($attributes['permissions'] ?? []));
 
         return parent::create($attributes);
     }
