@@ -3,9 +3,7 @@
 namespace Rosalana\Roles\Support;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Rosalana\Roles\Models\Role;
-use Rosalana\Roles\Traits\Roleable;
 
 class Migrator
 {
