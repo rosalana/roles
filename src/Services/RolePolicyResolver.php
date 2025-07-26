@@ -12,10 +12,6 @@ class RolePolicyResolver
 {
     public static function register(): void
     {   
-        if (env('APP_ENV') !== 'production') {
-            Config::resolveAll(); // pozor nepoužívat v produkci - dělat přes artisan command a cachovat
-        }
-
         foreach (Config::all() as $class => $config) {
 
             $permissions = static::processWithAlias($config->get('permissions', []), $config->get('alias', []));

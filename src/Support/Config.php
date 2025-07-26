@@ -25,8 +25,19 @@ class Config
         ]);
     }
 
+    protected static function registerAll(): void
+    {
+        $models = static::resolveAll();
+
+        foreach ($models as $model) {
+            static::register($model);
+        }
+    }
+
     public static function all(): array
     {
+        static::registerAll();
+
         return static::$models;
     }
 
@@ -43,26 +54,26 @@ class Config
         return static::$models[$class] ?? null;
     }
 
-    /**
-     * Warning: Do not use in production on every request!
-     */
-    public static function resolveAll(): void
+    public function resolveAll(): array
+    {
+        if (env('APP_ENV') === 'production') {
+            return cache()->rememberForever('rosalana.roles.models', fn() => static::scan());
+        }
+
+        return static::scan();
+    }
+
+    public static function scan(): array
     {
         $path = app_path('Models');
 
         $files = File::allFiles($path);
 
-        $models = collect($files)
+        return collect($files)
             ->map(fn($file) => Str::replaceLast('.php', '', Str::after($file->getRealPath(), base_path() . '/')))
             ->map(fn($class) => "\\" . str_replace('/', '\\', ucfirst($class)))
             ->filter(fn($class) => is_subclass_of($class, Model::class) && in_array(Roleable::class, class_uses_recursive($class)))
             ->values()
             ->all();
-
-        foreach ($models as $model) {
-            if (!isset(static::$models[$model])) {
-                static::register($model);
-            }
-        }
     }
 }

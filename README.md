@@ -240,8 +240,8 @@ You don’t need to check if the user is a member — it just works.
 
 Stay tuned — we're actively shaping the foundation of the Rosalana ecosystem.
 
-## Přidané ale pozor
-- Automaticky najde všechny modely, které implementují `Roleable` trait. Ale runtime a pouze na locale. Dělá to každý request.
+## Přidané 
+- Automaticky najde všechny modely, které implementují `Roleable` trait. Hledají se runtime pokud app není v production modu. Jinak se cachují.
 
 ## License
 
