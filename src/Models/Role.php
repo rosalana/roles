@@ -19,6 +19,10 @@ class Role extends Model
         'permissions'
     ];
 
+    protected $casts = [
+        'permissions' => 'array',
+    ];
+
     protected static function booted()
     {
         static::creating(function (Role $role) {

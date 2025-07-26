@@ -163,7 +163,7 @@ class RolesManager
     /**
      * Resolve the role from a string or Role instance.
      */
-    protected function resolveRole(string|Role $role): ?Role
+    public function resolveRole(string|Role $role): ?Role
     {
         $this->ensureContext();
 

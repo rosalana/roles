@@ -108,13 +108,13 @@ trait Roleable
 
     public function removeRole(string|Role $role): void
     {
-        $role = Roles::on($this)->for($this)->resolveRole($role);
+        $resolvedRole = Roles::on($this)->for($this)->resolveRole($role);
 
-        if (!$role) {
+        if (!$resolvedRole) {
             throw new \RuntimeException("Role '{$role}' not found or could not be resolved.");
         }
 
-        $role->users()->detach($this->getKey());
-        $role->delete();
+        $resolvedRole->users()->detach($this->getKey());
+        $resolvedRole->delete();
     }
 }
