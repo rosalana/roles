@@ -25,15 +25,6 @@ class Config
         ]);
     }
 
-    protected static function registerAll(): void
-    {
-        $models = static::resolveAll();
-
-        foreach ($models as $model) {
-            static::register($model);
-        }
-    }
-
     public static function all(): array
     {
         static::registerAll();
@@ -54,7 +45,16 @@ class Config
         return static::$models[$class] ?? null;
     }
 
-    public function resolveAll(): array
+    protected static function registerAll(): void
+    {
+        $models = static::resolveAll();
+
+        foreach ($models as $model) {
+            static::register($model);
+        }
+    }
+
+    protected static function resolveAll(): array
     {
         if (env('APP_ENV') === 'production') {
             return cache()->rememberForever('rosalana.roles.models', fn() => static::scan());
@@ -63,7 +63,7 @@ class Config
         return static::scan();
     }
 
-    public static function scan(): array
+    protected static function scan(): array
     {
         $path = app_path('Models');
 
