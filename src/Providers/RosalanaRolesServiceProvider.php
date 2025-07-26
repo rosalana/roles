@@ -3,6 +3,7 @@
 namespace Rosalana\Roles\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Rosalana\Roles\Services\RolePolicyResolver;
 
 class RosalanaRolesServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,9 @@ class RosalanaRolesServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        RolePolicyResolver::register();
+
         $this->publishes([
             __DIR__ . '/../../database/migrations/' => database_path('migrations'),
         ], 'rosalana-roles-migrations');

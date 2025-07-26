@@ -3,6 +3,10 @@
 namespace Rosalana\Roles\Support;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Rosalana\Roles\Traits\Roleable;
 
 class Config
 {
@@ -37,5 +41,28 @@ class Config
 
         static::register($class);
         return static::$models[$class] ?? null;
+    }
+
+    /**
+     * Warning: Do not use in production on every request!
+     */
+    public static function resolveAll(): void
+    {
+        $path = app_path('Models');
+
+        $files = File::allFiles($path);
+
+        $models = collect($files)
+            ->map(fn($file) => Str::replaceLast('.php', '', Str::after($file->getRealPath(), base_path() . '/')))
+            ->map(fn($class) => str_replace('/', '\\', $class))
+            ->filter(fn($class) => is_subclass_of($class, Model::class) && in_array(Roleable::class, class_uses_recursive($class)))
+            ->values()
+            ->all();
+
+        foreach ($models as $model) {
+            if (!isset(static::$models[$model])) {
+                static::register($model);
+            }
+        }
     }
 }

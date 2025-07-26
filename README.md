@@ -236,7 +236,12 @@ You don’t need to check if the user is a member — it just works.
 - **Permission in Gate**: Added permissions to Laravel's Gate system for more granular access control.
 - **Auto-migration**: Automatically migrate database if deprecated permissions are detected.
 
+- **Extrahovat config**: Config roleable modelu by mohl být v jiném souboru - {roleable}Config.php implements `RoleableConfigInterface`. Tím by to bylo nastavované zvlášť, ale stejně tak to může být v traitu, který si developer přidá sám. Takže nevím jestli to má smysl.
+
 Stay tuned — we're actively shaping the foundation of the Rosalana ecosystem.
+
+## Přidané ale pozor
+- Automaticky najde všechny modely, které implementují `Roleable` trait. Ale runtime a pouze na locale. Dělá to každý request.
 
 ## License
 

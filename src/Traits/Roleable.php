@@ -29,7 +29,7 @@ trait Roleable
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('auth.providers.users.model', \App\Models\User::class), // později upravit na morth kdy může hasRoles být více modelů
+            config('auth.providers.users.model', '\App\Models\User'), // později upravit na morth kdy může hasRoles být více modelů
             static::getUsersPivotTable(),
         )->withPivot('role_id');
     }

@@ -46,7 +46,7 @@ class Role extends Model
     public function users(): BelongsToMany
     {
         $table = Config::get($this->roleable_type)->get('pivot_table');
-        $userModel = config('auth.providers.users.model', \App\Models\User::class);
+        $userModel = config('auth.providers.users.model', '\App\Models\User');
 
         return $this->belongsToMany(
             $userModel,
