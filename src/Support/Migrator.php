@@ -11,7 +11,7 @@ class Migrator
 {
     public static function seedWithDefault(Model $model): void
     {
-        $defaultRoles = Config::get($model::class)->default_roles;
+        $defaultRoles = Config::get($model::class)->get('default_roles');
 
         if (empty($defaultRoles)) return;
 

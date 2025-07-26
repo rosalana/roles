@@ -23,8 +23,8 @@ class Validator
     {
         Validator::validateClass($model);
 
-        $registeredPermissions = Config::get($model)->permissions;
-        $alias = Config::get($model)->alias;
+        $registeredPermissions = Config::get($model)->get('permissions');
+        $alias = Config::get($model)->get('alias');
 
         foreach ($permissions as $p) {
             if (!in_array($p, $registeredPermissions)) {

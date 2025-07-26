@@ -57,7 +57,7 @@ class RolesManager
     public function assign(string|Role|null $role = null): void // pozor může být null!!!
     {
         $original = $role;
-        $role = $this->resolveRole($role ?? Config::get($this->roleable::class)->default_role);
+        $role = $this->resolveRole($role ?? Config::get($this->roleable::class)->get('default_role'));
 
         if (!$role) { // make custom exception later
             $name = is_string($original) ? $original : 'unknown';
@@ -107,7 +107,7 @@ class RolesManager
     {
         $this->ensureContext();
 
-        $pivotTable = Config::get($this->roleable::class)->pivot_table;
+        $pivotTable = Config::get($this->roleable::class)->get('pivot_table');
         $roleableColumn = strtolower(class_basename($this->roleable)) . '_id';
         $assigneeColumn = strtolower(class_basename($this->assignee)) . '_id';
 
@@ -212,7 +212,7 @@ class RolesManager
      */
     protected function processPermissionsAlias(array $permissions): array
     {
-        $alias = Config::get($this->roleable::class)->alias;
+        $alias = Config::get($this->roleable::class)->get('alias');
 
         if (empty($alias)) return $permissions;
 
