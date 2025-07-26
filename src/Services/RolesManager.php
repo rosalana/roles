@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Rosalana\Roles\Models\Role;
 use Rosalana\Roles\Support\Config;
 use Rosalana\Roles\Support\Validator;
-use Rosalana\Roles\Traits\HasRoles;
-use Rosalana\Roles\Traits\Roleable;
 
 class RolesManager
 {
@@ -135,7 +133,7 @@ class RolesManager
         $role = $this->get();
         if (!$role) return collect();
 
-        return collect($this->resolvePermissions($role));
+        return collect($role->permissions);
     }
 
     /**
@@ -172,60 +170,6 @@ class RolesManager
         if ($role instanceof Role) return $role;
 
         return $this->roleable->roles()->where('name', $role)->first();
-    }
-
-    /**
-     * Resolve permissions for the given role.
-     */
-    protected function resolvePermissions(Role $role): array
-    {
-        $permissions = $role->permissions;
-
-        Validator::validatePermissions($this->roleable::class, collect($permissions));
-
-        if (empty($permissions)) return [];
-
-        $permissions = $this->resolveWildcardPermissions($permissions);
-        $permissions = $this->processPermissionsAlias($permissions);
-
-        return array_values(array_unique($permissions));
-    }
-
-    /**
-     * Resolve wildcard permissions.
-     *
-     * If '*' is present, return all permissions for the roleable model.
-     */
-    protected function resolveWildcardPermissions(array $permissions): array
-    {
-        if (in_array('*', $permissions)) {
-            return $this->roleable::permissions();
-        }
-
-        return $permissions;
-    }
-
-    /**
-     * Process permissions aliases.
-     *
-     * If an alias is defined for a permission, resolve it to the actual permissions.
-     */
-    protected function processPermissionsAlias(array $permissions): array
-    {
-        $alias = Config::get($this->roleable::class)->get('alias');
-
-        if (empty($alias)) return $permissions;
-
-        $resolvedPermissions = [];
-        foreach ($permissions as $permission) {
-            if (isset($alias[$permission])) {
-                $resolvedPermissions = array_merge($resolvedPermissions, $alias[$permission]);
-            } else {
-                $resolvedPermissions[] = $permission;
-            }
-        }
-
-        return array_unique($resolvedPermissions);
     }
 
     /**

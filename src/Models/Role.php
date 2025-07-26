@@ -19,9 +19,13 @@ class Role extends Model
         'permissions'
     ];
 
-    protected $casts = [
-        'permissions' => 'array',
-    ];
+    public function getPermissionsAttribute(): array
+    {
+        $attribute = $this->attributes['permissions'] ?? [];
+        $permissions = is_array($attribute) ? $attribute : json_decode($attribute, true); 
+
+        return $this->resolvePermissions($permissions);
+    }
 
     public function roleable(): MorphTo
     {
@@ -87,5 +91,58 @@ class Role extends Model
         Validator::validatePermissions($this->roleable_type, collect($attributes['permissions'] ?? []));
 
         return parent::create($attributes);
+    }
+
+
+    /**
+     * Resolve permissions for the given role.
+     */
+    private function resolvePermissions(array $permissions): array
+    {
+        Validator::validatePermissions($this->roleable_type, collect($permissions));
+
+        if (empty($permissions)) return [];
+
+        $permissions = $this->resolveWildcardPermissions($permissions);
+        $permissions = $this->processPermissionsAlias($permissions);
+
+        return array_values(array_unique($permissions));
+    }
+
+    /**
+     * Resolve wildcard permissions.
+     *
+     * If '*' is present, return all permissions for the roleable model.
+     */
+    private function resolveWildcardPermissions(array $permissions): array
+    {
+        if (in_array('*', $permissions)) {
+            return $this->roleable::permissions();
+        }
+
+        return $permissions;
+    }
+
+    /**
+     * Process permissions aliases.
+     *
+     * If an alias is defined for a permission, resolve it to the actual permissions.
+     */
+    private function processPermissionsAlias(array $permissions): array
+    {
+        $alias = Config::get($this->roleable_type)->get('alias');
+
+        if (empty($alias)) return $permissions;
+
+        $resolvedPermissions = [];
+        foreach ($permissions as $permission) {
+            if (isset($alias[$permission])) {
+                $resolvedPermissions = array_merge($resolvedPermissions, $alias[$permission]);
+            } else {
+                $resolvedPermissions[] = $permission;
+            }
+        }
+
+        return array_unique($resolvedPermissions);
     }
 }
