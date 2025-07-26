@@ -33,7 +33,7 @@ class Validator
                     // It's a valid alias, so we can skip it
                     continue;
                 } else {
-                    throw new \RuntimeException("Permission '{$p}' is not registered for model " . $model::class);
+                    throw new \RuntimeException("Permission '{$p}' is not registered for model " . $model);
                 }
 
                 // -> pokud to dojde sem musí se udělat migrace - migrace by dělala i když by byl alias ale není to nutné.
