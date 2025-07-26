@@ -20,10 +20,9 @@ trait HasRoles
         return $this->roleIn($model);
     }
 
-    public function leave(Model $model): Role
+    public function leave(Model $model): void
     {
         Roles::on($model)->for($this)->detach();
-        return $this->roleIn($model);
     }
 
     public function roleIn(Model $model): ?Role
