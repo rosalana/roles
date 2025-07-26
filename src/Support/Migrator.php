@@ -9,7 +9,7 @@ use Rosalana\Roles\Traits\Roleable;
 
 class Migrator
 {
-    public static function seedWithDefault(Model&Roleable $model): void
+    public static function seedWithDefault(Model $model): void
     {
         $defaultRoles = Config::get($model::class)->default_roles;
 
@@ -25,7 +25,7 @@ class Migrator
         }
     }
 
-    public static function removeAllRoles(Model&Roleable $model): void
+    public static function removeAllRoles(Model $model): void
     {
         $model->roles()->delete();
     }

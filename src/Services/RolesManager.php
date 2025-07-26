@@ -16,17 +16,17 @@ class RolesManager
     /**
      * This is the model that has the roles assigned to it.
      */
-    protected Model&HasRoles $assignee;
+    protected Model $assignee;
 
     /**
      * The model that this manager is operating on.
      */
-    protected Model&Roleable $roleable;
+    protected Model $roleable;
 
     /**
      * Set the assignee for the roles.
      */
-    public function for(Model&HasRoles $assignee): self
+    public function for(Model $assignee): self
     {
         $this->assignee = $assignee;
         return $this;
@@ -35,7 +35,7 @@ class RolesManager
     /**
      * Set the model that this manager will operate on.
      */
-    public function on(Model&Roleable $roleable): self
+    public function on(Model $roleable): self
     {
         $this->roleable = $roleable;
         return $this;
@@ -44,7 +44,7 @@ class RolesManager
     /**
      * Set both the roleable model and the assignee.
      */
-    public function context(Model&Roleable $roleable, Model&HasRoles $assignee): self
+    public function context(Model $roleable, Model $assignee): self
     {
         $this->roleable = $roleable;
         $this->assignee = $assignee;

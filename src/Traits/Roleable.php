@@ -70,17 +70,17 @@ trait Roleable
 
     /* Methods */
 
-    public function join(Model&HasRoles $user, string|Role|null $role = null): void
+    public function join(Model $user, string|Role|null $role = null): void
     {
         Roles::on($this)->for($user)->assign($role);
     }
 
-    public function leave(Model&HasRoles $user): void
+    public function leave(Model $user): void
     {
         Roles::on($this)->for($user)->detach();
     }
 
-    public function roleOf(Model&HasRoles $user): ?Role
+    public function roleOf(Model $user): ?Role
     {
         return Roles::on($this)->for($user)->get();
     }
