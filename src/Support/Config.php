@@ -54,7 +54,7 @@ class Config
 
         $models = collect($files)
             ->map(fn($file) => Str::replaceLast('.php', '', Str::after($file->getRealPath(), base_path() . '/')))
-            ->map(fn($class) => str_replace('/', '\\', $class))
+            ->map(fn($class) => "\\" . str_replace('/', '\\', ucfirst($class)))
             ->filter(fn($class) => is_subclass_of($class, Model::class) && in_array(Roleable::class, class_uses_recursive($class)))
             ->values()
             ->all();
