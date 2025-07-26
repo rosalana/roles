@@ -27,6 +27,7 @@ class Validator
         $alias = Config::get($model)->get('alias');
 
         foreach ($permissions as $p) {
+            if ($p === '*') continue;
             if (!in_array($p, $registeredPermissions)) {
 
                 if (isset($alias[$p]) && in_array($alias[$p], $registeredPermissions)) {
