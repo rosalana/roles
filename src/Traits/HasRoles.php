@@ -63,17 +63,4 @@ trait HasRoles
     {
         return Roles::on($model)->for($this)->canAny($permissions);
     }
-
-    public function __call(string $method, array $params)
-    {
-        if (str_starts_with($method, 'is')) {
-            $role = substr($method, 2);
-            if (empty($role)) {
-                throw new \InvalidArgumentException("Role name cannot be empty.");
-            }
-            return $this->hasRole($role, ...$params);
-        }
-
-        // just a test
-    }
 }
