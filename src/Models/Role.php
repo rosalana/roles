@@ -19,10 +19,17 @@ class Role extends Model
         'permissions'
     ];
 
+    protected static function booted()
+    {
+        static::creating(function (Role $role) {
+            Validator::validatePermissions($role->roleable_type, collect($role->permissions ?? []));
+        });
+    }
+
     public function getPermissionsAttribute(): array
     {
         $attribute = $this->attributes['permissions'] ?? [];
-        $permissions = is_array($attribute) ? $attribute : json_decode($attribute, true); 
+        $permissions = is_array($attribute) ? $attribute : json_decode($attribute, true);
 
         return $this->resolvePermissions($permissions);
     }
@@ -85,14 +92,6 @@ class Role extends Model
     {
         return empty(array_diff($permissions, $this->permissions ?? []));
     }
-
-    public static function create(array $attributes = []): self
-    {
-        Validator::validatePermissions($attributes['roleable_type'], collect($attributes['permissions'] ?? []));
-
-        return parent::create($attributes);
-    }
-
 
     /**
      * Resolve permissions for the given role.
