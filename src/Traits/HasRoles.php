@@ -12,22 +12,6 @@ use Rosalana\Roles\Models\Role;
 trait HasRoles
 {
     /**
-     * Check if the model has a specific global role.
-     */
-    public function is(RoleEnum $globalRole): bool
-    {
-        return App::context()->get('user.' . $this->id . '.role') === $globalRole->value;
-    }
-
-    /**
-     * Check if the model does not have a specific global role.
-     */
-    public function isNot(RoleEnum $globalRole): bool
-    {
-        return ! $this->is($globalRole);
-    }
-
-    /**
      * Get the role of the model from the context.
      */
     public function role(): RoleEnum|null
