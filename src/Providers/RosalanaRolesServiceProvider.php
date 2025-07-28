@@ -29,9 +29,17 @@ class RosalanaRolesServiceProvider extends ServiceProvider
     {
         RolePolicyResolver::register();
 
+        if (!$this->app->runningInConsole()) {
+            $this->app['router']->pushMiddlewareToGroup('web',\Rosalana\Roles\Http\Middleware\EnsureUserIsNotSuspended::class);
+        }
+
         $this->publishes([
             __DIR__ . '/../../database/migrations/' => database_path('migrations'),
         ], 'rosalana-roles-migrations');
+
+        $this->publishes([
+            __DIR__ . '/../Enums/RoleEnum.php' => app_path('Enums/RoleEnum.php'),
+        ], 'rosalana-roles-role-enum');
     }
 
     protected function setRole(array $data): void

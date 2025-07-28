@@ -5,18 +5,37 @@ namespace Rosalana\Roles\Traits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Rosalana\Core\Facades\App;
-use Rosalana\Roles\Enums\RoleEnum;
+use Rosalana\Roles\Enums\RoleEnum as DefaultRoleEnum;
 use Rosalana\Roles\Facades\Roles;
 use Rosalana\Roles\Models\Role;
+use UnitEnum;
 
 trait HasRoles
 {
     /**
      * Get the role of the model from the context.
      */
-    public function role(): RoleEnum|null
+    public function role(): UnitEnum|null
     {
-        return RoleEnum::tryFrom(App::context()->get('user.' . $this->id . '.role')) ?: null;
+        $enum = config('rosalana.roles.enum', DefaultRoleEnum::class);
+
+        return $enum::tryFrom(App::context()->get('user.' . $this->id . '.role')) ?: null;
+    }
+
+    /**
+     * Check if the user is suspended based on the configured banned roles.
+     */
+    public function isSuspended(): bool
+    {
+        $role = $this->role();
+        $suspendedRoles = config('rosalana.roles.banned', []);
+        if (is_array($suspendedRoles)) {
+            return in_array($role?->value, $suspendedRoles);
+        } elseif (is_string($suspendedRoles)) {
+            return in_array($role?->value, explode(',', $suspendedRoles));
+        }
+
+        return false;
     }
 
     /**
