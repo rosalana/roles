@@ -243,6 +243,8 @@ Stay tuned — we're actively shaping the foundation of the Rosalana ecosystem.
 ## Přidané 
 - Automaticky najde všechny modely, které implementují `Roleable` trait. Hledají se runtime pokud app není v production modu. Jinak se cachují.
 
+- globální role jsou k dispozici přes `App::context()` v `HasRoles` traitu.
+
 ## License
 
 Rosalana Roles is open-source under the [MIT license](/LICENCE), allowing you to freely use, modify, and distribute it with minimal restrictions.
