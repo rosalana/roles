@@ -17,20 +17,9 @@ class RosalanaRolesServiceProvider extends ServiceProvider
             return new \Rosalana\Roles\Services\RolesManager();
         });
 
-        App::hooks()->onUserLogin(function ($data) {
-            $user = collect($data['user']);
-            App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role', null));
-        });
-
-        App::hooks()->onUserRegister(function ($data) {
-            $user = collect($data['user']);
-            App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role', null));
-        });
-
-        App::hooks()->onUserRefresh(function ($data) {
-            $user = collect($data['user']);
-            App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role', null));
-        });
+        App::hooks()->onUserLogin($this->setRole(...));
+        App::hooks()->onUserRegister($this->setRole(...));
+        App::hooks()->onUserRefresh($this->setRole(...));
     }
 
     /**
@@ -43,5 +32,17 @@ class RosalanaRolesServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../database/migrations/' => database_path('migrations'),
         ], 'rosalana-roles-migrations');
+    }
+
+    protected function setRole(array $data): void
+    {
+        $user = collect($data['user']);
+        
+        if (!$user->has('local_id')) {
+            logger()->warning('Missing local_id in user hook payload', $user->all());
+            return;
+        }
+
+        App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role'));
     }
 }
