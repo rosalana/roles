@@ -16,19 +16,19 @@ class Roles implements Package
     public function publish(): array
     {
         return [
-            'config' => [
-                'label' => 'Publish configuration settings to rosalana.php',
-                'run' => function () {
+            // 'config' => [
+            //     'label' => 'Publish configuration settings to rosalana.php',
+            //     'run' => function () {
 
-                    // config is not used in this package!
-                    Config::new('roles')
-                        ->add('enum', 'Rosalana\\Roles\\Enums\\RoleEnum::class') 
-                        ->add('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias
-                        ->add('pivot', "'users'") // Název relace na pivot table, pro každý Roleable model e.g. $workspace->users() -> 'workspace_users' table
-                        ->comment('Configurate the roles and permissions for the application.', 'Rosalana Roles Configuration')
-                        ->save();
-                }
-            ],
+            //         // config is not used in this package!
+            //         Config::new('roles')
+            //             ->add('enum', 'Rosalana\\Roles\\Enums\\RoleEnum::class') 
+            //             ->add('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias
+            //             ->add('pivot', "'users'") // Název relace na pivot table, pro každý Roleable model e.g. $workspace->users() -> 'workspace_users' table
+            //             ->comment('Configurate the roles and permissions for the application.', 'Rosalana Roles Configuration')
+            //             ->save();
+            //     }
+            // ],
             'migrations' => [
                 'label' => 'Publish database migrations',
                 'run' => function () {
