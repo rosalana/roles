@@ -20,6 +20,7 @@ class Roles implements Package
                 'label' => 'Publish configuration settings to rosalana.php',
                 'run' => function () {
 
+                    // config is not used in this package!
                     Config::new('roles')
                         ->add('enum', 'Rosalana\\Roles\\Enums\\RoleEnum::class') 
                         ->add('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias
