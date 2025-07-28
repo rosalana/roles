@@ -3,9 +3,7 @@
 namespace Rosalana\Roles\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Rosalana\Core\Facades\Basecamp;
 use Rosalana\Roles\Services\RolePolicyResolver;
-use Illuminate\Http\Client\Response;
 use Rosalana\Core\Facades\App;
 
 class RosalanaRolesServiceProvider extends ServiceProvider
@@ -19,49 +17,19 @@ class RosalanaRolesServiceProvider extends ServiceProvider
             return new \Rosalana\Roles\Services\RolesManager();
         });
 
-        /** TODO -> */
-        Basecamp::after('user.login', function (Response $response) {
-            if (class_exists("Rosalana\Accounts\Facades\Accounts")) {
-                $user = \Rosalana\Accounts\Facades\Accounts::users()->toLocal($response->json('data'));
-                App::context()->put($user, [
-                    'role' => $response->json('data.role', 'unknown'),
-                ]);
-            } else {
-                logger()->warning('Accounts facade not found. User context not set.');
-            }
+        App::hooks()->onUserLogin(function ($data) {
+            $user = collect($data['user']);
+            App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role', null));
         });
 
-        Basecamp::after('user.register', function (Response $response) {
-            if (class_exists("Rosalana\Accounts\Facades\Accounts")) {
-                $user = \Rosalana\Accounts\Facades\Accounts::users()->toLocal($response->json('data'));
-                App::context()->put($user, [
-                    'role' => $response->json('data.role', 'unknown'),
-                ]);
-            } else {
-                logger()->warning('Accounts facade not found. User context not set.');
-            }
+        App::hooks()->onUserRegister(function ($data) {
+            $user = collect($data['user']);
+            App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role', null));
         });
 
-        Basecamp::after('user.refresh', function (Response $response) {
-            if (class_exists("Rosalana\Accounts\Facades\Accounts")) {
-                $user = \Rosalana\Accounts\Facades\Accounts::users()->toLocal($response->json('data'));
-                App::context()->put($user, [
-                    'role' => $response->json('data.role', 'unknown'),
-                ]);
-            } else {
-                logger()->warning('Accounts facade not found. User context not set.');
-            }
-        });
-
-        Basecamp::after('user.current', function (Response $response) {
-            if (class_exists("Rosalana\Accounts\Facades\Accounts")) {
-                $user = \Rosalana\Accounts\Facades\Accounts::users()->toLocal($response->json('data'));
-                App::context()->put($user, [
-                    'role' => $response->json('data.role', 'unknown'),
-                ]);
-            } else {
-                logger()->warning('Accounts facade not found. User context not set.');
-            }
+        App::hooks()->onUserRefresh(function ($data) {
+            $user = collect($data['user']);
+            App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role', null));
         });
     }
 
