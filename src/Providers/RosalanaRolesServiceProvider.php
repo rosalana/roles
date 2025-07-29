@@ -30,7 +30,7 @@ class RosalanaRolesServiceProvider extends ServiceProvider
         RolePolicyResolver::register();
 
         if (!$this->app->runningInConsole()) {
-            $this->app['router']->pushMiddlewareToGroup('web',\Rosalana\Roles\Http\Middleware\EnsureUserIsNotSuspended::class);
+            $this->app['router']->pushMiddlewareToGroup('web', \Rosalana\Roles\Http\Middleware\EnsureUserIsNotSuspended::class);
         }
 
         $this->publishes([
@@ -46,11 +46,22 @@ class RosalanaRolesServiceProvider extends ServiceProvider
     {
         $user = collect($data['user']);
         
-        if (!$user->has('local_id')) {
-            logger()->warning('Missing local_id in user hook payload', $user->all());
+        if (!$user->has('local_id') && !$user->has('remote_id')) {
+            logger()->warning('Missing ID in user hook payload', $user->all());
             return;
         }
 
-        App::context()->put('user.' . $user->get('local_id') . '.role', $user->get('role'));
+        if ($user->has('local_id')) {
+            $key = 'user.' . $user->get('local_id');
+        } else {
+            $result = App::context()->findFirst('user.*', ['remote_id' => $user->get('remote_id')]);
+            if (!$result[0]) {
+                logger()->warning('User not found for remote_id', $user->all());
+                return;
+            }
+            $key = $result[0];
+        }
+
+        App::context()->put($key . '.role', $user->get('role'));
     }
 }
