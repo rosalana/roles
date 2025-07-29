@@ -13,6 +13,8 @@ This package is a part of the Rosalana eco-system. It provides a way to manage u
     - [HasRoles Models](#hasroles-models)
     - [Role Model](#role-model)
     - [Roles Manager](#roles-manager)
+    - [Suspended Users](#suspended-users)
+    - [Laravel Gate Integration](#laravel-gate-integration)
 - [May Show in the Future](#may-show-in-the-future)
 - [License](#license)
 
@@ -42,7 +44,9 @@ This file will grow over time as you add more Rosalana packages to your applicat
 
 `rosalana/roles` package provides configuration options for:
 
--
+- `enum`: The class that defines the **Global Roles** used in the application. Publish the `RoleEnum` class to customize it.
+- `auto-migrate`: Automatically migrate database if deprecated permissions are detected. **This feature is not yet implemented.**
+- `banned`: An array of roles that are considered banned or suspended. If a user has any of these roles, they are considered suspended and cannot access the application. Leave this empty to disable this automatic suspension.
 
 ## Features
 
@@ -231,19 +235,23 @@ $manager->can('edit'); // true / false
 The `assign()` method automatically replaces the current role if the user is already assigned.
 You don’t need to check if the user is a member — it just works.
 
+### Suspended Users
+
+The package supports automatic suspension of users based on their assigned **Global Role**. If a user has a role listed in the `banned` configuration, they are considered suspended and cannot access the application.
+
+The middleware `Rosalana\Roles\Http\Middleware\AccountSuspendedException` checks if the user has a banned role and throws an `HttpException` if they do. This middleware is registered on the `web` middleware group. Do not forget to logout the user if they are suspended. Otherwise, they will be caught in a redirect loop. You can do this in your `bootstrap/app.php`.
+
+### Laravel Gate Integration
+
+The package automatically integrates with Laravel's Gate system, allowing you to use the `can` method to check permissions in your controllers and views.
+
+All model-specific permissions are automatically registered with the Gate by scanning the roleable models and their defined permissions. In production environment, this happens only once and then cached for performence. Don't forget to run `php artisan cache:clear` in your deployment scripts to ensure the cache is cleared after any changes to roles or permissions.
+
 ## May Show in the Future
 
-- **Permission in Gate**: Added permissions to Laravel's Gate system for more granular access control.
 - **Auto-migration**: Automatically migrate database if deprecated permissions are detected.
 
-- **Extrahovat config**: Config roleable modelu by mohl být v jiném souboru - {roleable}Config.php implements `RoleableConfigInterface`. Tím by to bylo nastavované zvlášť, ale stejně tak to může být v traitu, který si developer přidá sám. Takže nevím jestli to má smysl.
-
 Stay tuned — we're actively shaping the foundation of the Rosalana ecosystem.
-
-## Přidané 
-- Automaticky najde všechny modely, které implementují `Roleable` trait. Hledají se runtime pokud app není v production modu. Jinak se cachují.
-
-- globální role jsou k dispozici přes `App::context()` v `HasRoles` traitu.
 
 ## License
 
