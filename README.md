@@ -241,6 +241,12 @@ The package supports automatic suspension of users based on their assigned **Glo
 
 The middleware `Rosalana\Roles\Http\Middleware\AccountSuspendedException` checks if the user has a banned role and throws an `HttpException` if they do. This middleware is registered on the `web` middleware group. Do not forget to logout the user if they are suspended. Otherwise, they will be caught in a redirect loop. You can do this in your `bootstrap/app.php`.
 
+```php
+$exceptions->render(
+    fn (AccountSuspendedException $e) => Accounts::logout()
+);
+```
+
 ### Laravel Gate Integration
 
 The package automatically integrates with Laravel's Gate system, allowing you to use the `can` method to check permissions in your controllers and views.
