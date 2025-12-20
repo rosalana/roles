@@ -3,14 +3,14 @@
 namespace Rosalana\Roles\Providers;
 
 use Illuminate\Support\Facades\Artisan;
+use Rosalana\Configure\Configure;
 use Rosalana\Core\Contracts\Package;
-use Rosalana\Core\Support\Config;
 
 class Roles implements Package
 {
     public function resolvePublished(): bool
     {
-        return true;
+        return Configure::file('rosalana')->has('roles');
     }
 
     public function publish(): array
@@ -20,11 +20,12 @@ class Roles implements Package
                 'label' => 'Publish configuration settings to rosalana.php',
                 'run' => function () {
 
-                    Config::new('roles')
-                        ->add('enum', 'Rosalana\\Roles\\Enums\\RoleEnum::class')
-                        ->add('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias -> not using yet
-                        ->add('banned', '[\'banned\', \'unknown\']')
-                        ->comment('Configurate the roles and permissions for the application.', 'Rosalana Roles Configuration')
+                    Configure::file('rosalana')
+                        ->section('roles')
+                        ->withComment('Rosalana Roles Configuration', 'Configurate the roles and permissions for the application.')
+                        ->value('enum', 'Rosalana\Roles\Enums\RoleEnum::class')
+                        ->value('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias -> not using yet
+                        ->value('banned', '[\'banned\', \'unknown\']')
                         ->save();
                 }
             ],
