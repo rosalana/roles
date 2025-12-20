@@ -10,7 +10,7 @@ class Roles implements Package
 {
     public function resolvePublished(): bool
     {
-        return Configure::file('rosalana')->has('roles');
+        return Configure::fileExists('rosalana') && Configure::file('rosalana')->has('roles');
     }
 
     public function publish(): array
