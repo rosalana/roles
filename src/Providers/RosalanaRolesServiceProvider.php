@@ -54,14 +54,16 @@ class RosalanaRolesServiceProvider extends ServiceProvider
         if ($user->has('local_id')) {
             $key = 'user.' . $user->get('local_id');
         } else {
-            $result = App::context()->findFirst('user.*', ['remote_id' => $user->get('remote_id')]);
-            if (!$result[0]) {
+            $result = array_key_first(App::context()->find('user.*', ['remote_id' => $user->get('remote_id')]));
+            if (!$result) {
                 logger()->warning('User not found for remote_id', $user->all());
                 return;
             }
-            $key = $result[0];
+            $key = $result;
         }
 
-        App::context()->put($key . '.role', $user->get('role'));
+        if (!$key) return;
+
+        App::context()->scope($key)->put('role', $user->get('role'));
     }
 }

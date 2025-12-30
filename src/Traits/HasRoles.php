@@ -19,7 +19,9 @@ trait HasRoles
     {
         $enum = config('rosalana.roles.enum', DefaultRoleEnum::class);
 
-        return $enum::tryFrom(App::context()->get('user.' . $this->id . '.role')) ?: null;
+        $role = App::context()->scope("user.{$this->id}")->get('role');
+
+        return $enum::tryFrom($role) ?: null;
     }
 
     /**
