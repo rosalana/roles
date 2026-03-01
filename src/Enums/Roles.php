@@ -21,13 +21,29 @@ enum Roles: string
         };
     }
 
-    public function isAtLeast(self $role): bool
+    public function isAtLeast(self|string $role): bool
     {
+        if (is_string($role)) {
+            $role = self::tryFrom($role);
+
+            if (!$role) {
+                return false; // Invalid role string
+            }
+        }
+
         return $this->level() >= $role->level();
     }
 
-    public function is(self $role): bool
+    public function is(self|string $role): bool
     {
+        if (is_string($role)) {
+            $role = self::tryFrom($role);
+
+            if (!$role) {
+                return false; // Invalid role string
+            }
+        }
+
         return $this->value === $role->value;
     }
 }
