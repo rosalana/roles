@@ -2,7 +2,10 @@
 
 namespace Rosalana\Roles\Providers;
 
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Rosalana\Core\Events\BasecampRequestSent;
 use Rosalana\Roles\Services\RolePolicyResolver;
 use Rosalana\Core\Facades\App;
 
@@ -17,9 +20,17 @@ class RosalanaRolesServiceProvider extends ServiceProvider
             return new \Rosalana\Roles\Services\RolesManager();
         });
 
-        App::hooks()->onUserLogin($this->setRole(...));
-        App::hooks()->onUserRegister($this->setRole(...));
-        App::hooks()->onUserRefresh($this->setRole(...));
+        Event::listen(BasecampRequestSent::class, function (BasecampRequestSent $event) {
+            if (in_array($event->alias, ['user.login', 'user.register', 'user.refresh'])) {
+                // $this->setRole($event->response);
+            }
+        });
+
+        // #fixme: Nebude fungovat protože potřebujeme BasecampResponse kvůli získání 'role' attributu - není v user modelu totiž.
+        // Lepší pravděpodobně je udělat event listener na BasecampRequestSent a if v setRole pro type response (přidat request alias je bezpečnější)
+        // Event::listen('Rosalana\\Accounts\\Events\\UserLogin', $this->setRole(...));
+        // Event::listen('Rosalana\\Accounts\\Events\\UserRegister', $this->setRole(...));
+        // Event::listen('Rosalana\\Accounts\\Events\\UserRefresh', $this->setRole(...));
     }
 
     /**
@@ -42,28 +53,41 @@ class RosalanaRolesServiceProvider extends ServiceProvider
         ], 'rosalana-roles-role-enum');
     }
 
-    protected function setRole(array $data): void
+    /**
+     * Set the user's role in the application context.
+     */
+    protected function setRole(User $user): void
     {
-        $user = collect($data['user']);
-        
-        if (!$user->has('local_id') && !$user->has('remote_id')) {
-            logger()->warning('Missing ID in user hook payload', $user->all());
+        $remoteIdentifier = App::config('rosalana.accounts.identifier', 'rosalana_id');
+
+        if (!$user->getAttribute($remoteIdentifier) && !$user->getKey()) {
+            logger()->warning('User missing both local and remote identifiers', [
+                'user_id' => $user->getKey(),
+                'remote_id' => $user->getAttribute($remoteIdentifier),
+            ]);
             return;
         }
 
-        if ($user->has('local_id')) {
-            $key = 'user.' . $user->get('local_id');
+        if ($user->getKey()) {
+            $key = 'user.' . $user->getKey();
         } else {
-            $result = array_key_first(App::context()->find('user.*', ['remote_id' => $user->get('remote_id')]));
-            if (!$result) {
-                logger()->warning('User not found for remote_id', $user->all());
+            $match = App::context()->find('user.*', [$remoteIdentifier => $user->getAttribute($remoteIdentifier)]);
+            if (! $match) {
+                logger()->warning('User not found for remote identifier', [
+                    'remote_id' => $user->getAttribute($remoteIdentifier),
+                ]);
                 return;
             }
-            $key = $result;
         }
 
-        if (!$key) return;
+        if (! isset($key)) {
+            logger()->warning('Unable to determine context key for user', [
+                'user_id' => $user->getKey(),
+                'remote_id' => $user->getAttribute($remoteIdentifier),
+            ]);
+            return;
+        }
 
-        App::context()->scope($key)->put('role', $user->get('role'));
+        App::context()->scope($key)->put('role', $user->getAttribute('role'));
     }
 }
