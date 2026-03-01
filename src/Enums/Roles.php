@@ -2,7 +2,9 @@
 
 namespace Rosalana\Roles\Enums;
 
-enum Roles: string
+use Rosalana\Roles\Contracts\RoleEnum;
+
+enum Roles: string implements RoleEnum
 {
     case ADMIN = 'admin';
     case MODERATOR = 'moderator';
@@ -21,7 +23,7 @@ enum Roles: string
         };
     }
 
-    public function isAtLeast(self|string $role): bool
+    public function isAtLeast(RoleEnum|string $role): bool
     {
         if (is_string($role)) {
             $role = self::tryFrom($role);
@@ -34,7 +36,7 @@ enum Roles: string
         return $this->level() >= $role->level();
     }
 
-    public function is(self|string $role): bool
+    public function is(RoleEnum|string $role): bool
     {
         if (is_string($role)) {
             $role = self::tryFrom($role);
