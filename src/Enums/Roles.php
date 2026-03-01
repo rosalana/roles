@@ -2,7 +2,7 @@
 
 namespace Rosalana\Roles\Enums;
 
-enum RoleEnum: string
+enum Roles: string
 {
     case ADMIN = 'admin';
     case MODERATOR = 'moderator';

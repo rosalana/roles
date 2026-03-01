@@ -23,7 +23,7 @@ class Roles implements Package
                     Configure::file('rosalana')
                         ->section('roles')
                         ->withComment('Rosalana Roles Configuration', 'Configurate the roles and permissions for the application.')
-                        ->value('enum', 'Rosalana\Roles\Enums\RoleEnum::class')
+                        ->value('enum', 'Rosalana\Roles\Enums\Roles::class')
                         ->value('auto-migrate', 'true') // Automatically migrate permissions when find undefined permission on the model - needs permissionAlias -> not using yet
                         ->value('banned', '[\'banned\', \'unknown\']')
                         ->save();
