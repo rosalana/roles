@@ -5,7 +5,7 @@ namespace Rosalana\Roles\Traits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Rosalana\Core\Facades\App;
-use Rosalana\Roles\Enums\RoleEnum as DefaultRoleEnum;
+use Rosalana\Roles\Enums\Roles as DefaultRoles;
 use Rosalana\Roles\Facades\Roles;
 use Rosalana\Roles\Models\Role;
 use UnitEnum;
@@ -17,7 +17,7 @@ trait HasRoles
      */
     public function role(): UnitEnum|null
     {
-        $enum = config('rosalana.roles.enum', DefaultRoleEnum::class);
+        $enum = config('rosalana.roles.enum', DefaultRoles::class);
 
         $role = App::context()->scope("user.{$this->id}")->get('role');
 

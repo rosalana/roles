@@ -44,7 +44,7 @@ This file will grow over time as you add more Rosalana packages to your applicat
 
 `rosalana/roles` package provides configuration options for:
 
-- `enum`: The class that defines the **Global Roles** used in the application. Publish the `RoleEnum` class to customize it.
+- `enum`: The class that defines the **Global Roles** used in the application. Publish the `Roles` enum class to customize it.
 - `auto-migrate`: Automatically migrate database if deprecated permissions are detected. **This feature is not yet implemented.**
 - `banned`: An array of roles that are considered banned or suspended. If a user has any of these roles, they are considered suspended and cannot access the application. Leave this empty to disable this automatic suspension.
 

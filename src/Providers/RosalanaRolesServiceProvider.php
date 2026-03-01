@@ -39,7 +39,7 @@ class RosalanaRolesServiceProvider extends ServiceProvider
         ], 'rosalana-roles-migrations');
 
         $this->publishes([
-            __DIR__ . '/../Enums/RoleEnum.php' => app_path('Enums/RoleEnum.php'),
+            __DIR__ . '/../Enums/Roles.php' => app_path('Enums/Roles.php'),
         ], 'rosalana-roles-role-enum');
     }
 

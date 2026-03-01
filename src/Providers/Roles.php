@@ -39,7 +39,7 @@ class Roles implements Package
                 }
             ],
             'role_enum' => [
-                'label' => 'Publish RoleEnum for customization',
+                'label' => 'Publish Roles enum for customization',
                 'run' => function () {
                     Artisan::call('vendor:publish', [
                         '--tag' => 'rosalana-roles-role-enum',
