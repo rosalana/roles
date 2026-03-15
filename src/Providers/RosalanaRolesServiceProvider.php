@@ -34,6 +34,10 @@ class RosalanaRolesServiceProvider extends ServiceProvider
             $this->app['router']->pushMiddlewareToGroup('web', \Rosalana\Roles\Http\Middleware\EnsureUserIsNotSuspended::class);
         }
 
+        $this->app['router']->aliasMiddleware('role.is', \Rosalana\Roles\Http\Middleware\IsAtLeast::class);
+        $this->app['router']->aliasMiddleware('role.in', \Rosalana\Roles\Http\Middleware\HasRoleIn::class);
+        $this->app['router']->aliasMiddleware('permission.in', \Rosalana\Roles\Http\Middleware\HasPermissionIn::class);
+
         $this->publishes([
             __DIR__ . '/../../database/migrations/' => database_path('migrations'),
         ], 'rosalana-roles-migrations');
